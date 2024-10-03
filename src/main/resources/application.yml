@@ -4,11 +4,11 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/t1_demo
     username: postgres
-    password: "0000"
+    password: "nikvitya"
     driverClassName: org.postgresql.Driver
   liquibase:
     enabled: true
-    default-schema: t1_demo
+    default-schema: public
     change-log: db/changelog/db.changelog-master.xml
 
 
@@ -24,13 +24,26 @@ t1:
       server: localhost:9092
     consumer:
       group-id: t1-demo
+      account-id: t1-account
+      transaction-id: t1-transaction
       max.poll.records: 10
     producer:
       enable: true
     topic:
       client_registration: t1_demo_client_registration
       client_id_registered: t1_demo_client_registered
-      client_transactions: t1_demo_client_transactions
+
+      account_registration: t1_demo_accounts_registration
+      account_id_registered: t1_demo_accounts_registered
+
+      transaction_registration: t1_demo_transactions_registration
+      transaction_id_registered: t1_demo_transactions_registered
+
+      metric_trace: t1_demo_metric_trace
+      error_trace: t1_demo_error_trace
 
     listener:
       poll-timeout: 1000
+
+  aop:
+    max-execution-time: 100

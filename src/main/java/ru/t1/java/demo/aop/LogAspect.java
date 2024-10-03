@@ -17,7 +17,7 @@ import static java.util.Objects.isNull;
 @Order(0)
 public class LogAspect {
 
-    @Pointcut("within(ru.t1.java.demo.*)")
+    @Pointcut("within(ru.t1.java.demo..*)")
     public void loggingMethods() {
 
     }
