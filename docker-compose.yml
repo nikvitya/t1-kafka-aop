@@ -1,13 +1,15 @@
 version: '1.0'
 
 services:
-#  postgres:
-#    image: postgres:11.13#    container_name: t1_java_demo
-#    ports:
-#      - "5432:5432"
-#    environment:
-#      - POSTGRES_USER=postgres
-#      - POSTGRES_PASSWORD=0000
+  postgres:
+    image: postgres:11.13
+    container_name: t1_java_demo
+    ports:
+      - "6543:5432"
+    environment:
+      - POSTGRES_DB=t1_demo
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=0000
   zookeeper_t1:
     image: confluentinc/cp-zookeeper:5.5.0
     hostname: zookeeper_t1
