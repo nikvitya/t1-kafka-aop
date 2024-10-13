@@ -1,8 +1,6 @@
 package ru.t1.java.demo.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.AbstractPersistable;
@@ -20,5 +18,8 @@ public class Transaction extends AbstractPersistable<Long> {
 
     @Column(name = "client_id")
     private Long clientId;
+
+    @Column(name = "account_id")
+    private Long accountId;
 
 }

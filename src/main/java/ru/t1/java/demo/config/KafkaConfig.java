@@ -5,11 +5,11 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.CommonErrorHandler;
@@ -19,19 +19,22 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.util.backoff.FixedBackOff;
-import ru.t1.java.demo.kafka.KafkaClientProducer;
-import ru.t1.java.demo.kafka.MessageDeserializer;
-import ru.t1.java.demo.model.dto.ClientDto;
+import ru.t1.java.demo.kafka.*;
+import ru.t1.java.demo.model.dto.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Configuration
-public class KafkaConfig {
+public class KafkaConfig<T> {
 
     @Value("${t1.kafka.consumer.group-id}")
-    private String groupId;
+    private String clientId;
+    @Value("${t1.kafka.consumer.account-id}")
+    private String accountId;
+    @Value("${t1.kafka.consumer.transaction-id}")
+    private String transactionId;
     @Value("${t1.kafka.bootstrap.server}")
     private String servers;
     @Value("${t1.kafka.session.timeout.ms:15000}")
@@ -44,16 +47,19 @@ public class KafkaConfig {
     private String maxPollIntervalsMs;
     @Value("${t1.kafka.topic.client_id_registered}")
     private String clientTopic;
+    @Value("${t1.kafka.topic.account_id_registered}")
+    private String accountTopic;
+    @Value("${t1.kafka.topic.transaction_id_registered}")
+    private String transactionTopic;
 
 
-    @Bean
-    public ConsumerFactory<String, ClientDto> consumerListenerFactory() {
+    private ConsumerFactory<String, T> consumerListenerFactory(String groupId, Class<T> valueType) {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, servers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, MessageDeserializer.class);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "ru.t1.java.demo.model.dto.ClientDto");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "ru.t1.java.demo.model.dto." + valueType.getSimpleName());
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, sessionTimeout);
@@ -62,24 +68,17 @@ public class KafkaConfig {
         props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollIntervalsMs);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, Boolean.FALSE);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, MessageDeserializer.class.getName());
         props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, MessageDeserializer.class);
 
-        DefaultKafkaConsumerFactory factory = new DefaultKafkaConsumerFactory<String, ClientDto>(props);
+        DefaultKafkaConsumerFactory factory = new DefaultKafkaConsumerFactory<String, T>(props);
         factory.setKeyDeserializer(new StringDeserializer());
 
         return factory;
     }
 
-    @Bean
-    ConcurrentKafkaListenerContainerFactory<String, ClientDto> kafkaListenerContainerFactory(@Qualifier("consumerListenerFactory") ConsumerFactory<String, ClientDto> consumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<String, ClientDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factoryBuilder(consumerFactory, factory);
-        return factory;
-    }
-
-    private <T> void factoryBuilder(ConsumerFactory<String, T> consumerFactory, ConcurrentKafkaListenerContainerFactory<String, T> factory) {
+    private <T> void factoryBuilder
+            (ConsumerFactory<String, T> consumerFactory, ConcurrentKafkaListenerContainerFactory<String, T> factory) {
         factory.setConsumerFactory(consumerFactory);
         factory.setBatchListener(true);
         factory.setConcurrency(1);
@@ -93,27 +92,34 @@ public class KafkaConfig {
         DefaultErrorHandler handler = new DefaultErrorHandler(new FixedBackOff(1000, 3));
         handler.addNotRetryableExceptions(IllegalStateException.class);
         handler.setRetryListeners((record, ex, deliveryAttempt) -> {
-            log.error(" RetryListeners message = {}, offset = {} deliveryAttempt = {}", ex.getMessage(), record.offset(), deliveryAttempt);
+            log.error("RetryListeners message = {}, offset = {} deliveryAttempt = {}", ex.getMessage(), record.offset(), deliveryAttempt);
         });
         return handler;
     }
 
-    @Bean("client")
-    public KafkaTemplate<String, ClientDto> kafkaTemplate(ProducerFactory<String, ClientDto> producerPatFactory) {
-        return new KafkaTemplate<>(producerPatFactory);
+    @Bean
+    ConcurrentKafkaListenerContainerFactory<String, T> kafkaClientListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factoryBuilder(consumerListenerFactory(clientId, (Class<T>) ClientDto.class), factory);
+        return factory;
     }
 
     @Bean
-    @ConditionalOnProperty(value = "t1.kafka.producer.enable",
-            havingValue = "true",
-            matchIfMissing = true)
-    public KafkaClientProducer producerClient(@Qualifier("client") KafkaTemplate template) {
-        template.setDefaultTopic(clientTopic);
-        return new KafkaClientProducer(template);
+    ConcurrentKafkaListenerContainerFactory<String, T> kafkaAccountListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factoryBuilder(consumerListenerFactory(accountId, (Class<T>) AccountDto.class), factory);
+        return factory;
     }
 
     @Bean
-    public ProducerFactory<String, ClientDto> producerClientFactory() {
+    ConcurrentKafkaListenerContainerFactory<String, T> kafkaTransactionListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factoryBuilder(consumerListenerFactory(transactionId, (Class<T>) TransactionDto.class), factory);
+        return factory;
+    }
+
+
+    private ProducerFactory<String, T> producerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, servers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -122,4 +128,73 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(props);
     }
 
+    @Bean
+    @Primary
+    public KafkaTemplate<String, T> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "t1.kafka.producer.enable",
+            havingValue = "true",
+            matchIfMissing = true)
+    public KafkaClientProducer producerClient() {
+        KafkaTemplate<String, ClientDto> template = (KafkaTemplate<String, ClientDto>) kafkaTemplate();
+        KafkaTemplate<String, Long> templateLong = (KafkaTemplate<String, Long>) kafkaTemplate();
+
+        template.setDefaultTopic(clientTopic);
+        return new KafkaClientProducer(template, templateLong);
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "t1.kafka.producer.enable",
+            havingValue = "true",
+            matchIfMissing = true)
+    public KafkaAccountProducer producerAccount() {
+        KafkaTemplate<String, AccountDto> template = (KafkaTemplate<String, AccountDto>) kafkaTemplate();
+        KafkaTemplate<String, Long> templateLong = (KafkaTemplate<String, Long>) kafkaTemplate();
+
+        template.setDefaultTopic(accountTopic);
+        return new KafkaAccountProducer(template, templateLong);
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "t1.kafka.producer.enable",
+            havingValue = "true",
+            matchIfMissing = true)
+    public KafkaTransactionProducer producerTransaction() {
+        KafkaTemplate<String, TransactionDto> template = (KafkaTemplate<String, TransactionDto>) kafkaTemplate();
+        KafkaTemplate<String, Long> templateLong = (KafkaTemplate<String, Long>) kafkaTemplate();
+
+        template.setDefaultTopic(transactionTopic);
+        return new KafkaTransactionProducer(template, templateLong);
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "t1.kafka.producer.enable",
+            havingValue = "true",
+            matchIfMissing = true)
+    public KafkaMetricProducer producerMetric() {
+        KafkaTemplate<String, MetricTraceDto> template = (KafkaTemplate<String, MetricTraceDto>) kafkaTemplate();
+        return new KafkaMetricProducer(template);
+    }
+
+    @Bean
+    @ConditionalOnProperty(value = "t1.kafka.producer.enable",
+            havingValue = "true",
+            matchIfMissing = true)
+    public KafkaErrorProducer producerError() {
+        KafkaTemplate<String, ErrorDto> template = (KafkaTemplate<String, ErrorDto>) kafkaTemplate();
+        return new KafkaErrorProducer(template);
+    }
 }
+
+
+
+
+
+
+
+
+
+

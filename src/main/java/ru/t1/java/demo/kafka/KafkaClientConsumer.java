@@ -24,7 +24,7 @@ public class KafkaClientConsumer {
 
     @KafkaListener(id = "${t1.kafka.consumer.group-id}",
             topics = "${t1.kafka.topic.client_registration}",
-            containerFactory = "kafkaListenerContainerFactory")
+            containerFactory = "kafkaClientListenerContainerFactory")
     public void listener(@Payload List<ClientDto> messageList,
                          Acknowledgment ack,
                          @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,

@@ -13,7 +13,13 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
         <sqlFile encoding="utf8" path="/db/changelog/2024/09/16-01-changelog-02.sql"/>
         <rollback/>
     </changeSet>
-    <changeSet id="1727272690521-1" author="e_cha (generated)">
+
+    <changeSet id="accounts" author="NikiforovV">
+        <sqlFile encoding="utf8" path="/db/changelog/2024/09/16-01-changelog-03.sql"/>
+        <rollback/>
+    </changeSet>
+
+        <changeSet id="1727272690521-1" author="e_cha (generated)">
         <createSequence incrementBy="50" sequenceName="transaction_seq" startValue="1"/>
     </changeSet>
     <changeSet id="1727272690521-2" author="e_cha (generated)">
@@ -23,8 +29,12 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
             </column>
             <column name="amount" type="DECIMAL(19, 2)"/>
             <column name="client_id" type="BIGINT"/>
+            <column name="account_id" type="BIGINT"/>
         </createTable>
+        <addForeignKeyConstraint baseTableName="transaction"
+                                 baseColumnNames="account_id"
+                                 constraintName="account_id_fk"
+                                 referencedTableName="account"
+                                 referencedColumnNames="id"/>
     </changeSet>
-
-
 </databaseChangeLog>
