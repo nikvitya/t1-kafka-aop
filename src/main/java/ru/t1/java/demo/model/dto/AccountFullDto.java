@@ -11,20 +11,21 @@ import ru.t1.java.demo.model.AccountType;
 
 import java.math.BigDecimal;
 
-/**
- * DTO for {@link ru.t1.java.demo.model.Account}
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
-public class AccountDto {
+public class AccountFullDto {
+
+    private Long id;
+
     @JsonProperty("client_id")
     private Long clientId;
 
     private AccountType type;
+    private BigDecimal balance;
 
-    @JsonProperty("is_blocked")
-    private Boolean isBlocked = false;
+    @JsonProperty("is_Blocked")
+    private Boolean isBlocked;
 }

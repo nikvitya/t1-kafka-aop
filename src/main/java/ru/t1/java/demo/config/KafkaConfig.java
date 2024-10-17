@@ -35,6 +35,8 @@ public class KafkaConfig<T> {
     private String accountId;
     @Value("${t1.kafka.consumer.transaction-id}")
     private String transactionId;
+    @Value("${t1.kafka.consumer.transaction-error-id}")
+    private String transactionErrorId;
     @Value("${t1.kafka.bootstrap.server}")
     private String servers;
     @Value("${t1.kafka.session.timeout.ms:15000}")
@@ -115,6 +117,37 @@ public class KafkaConfig<T> {
     ConcurrentKafkaListenerContainerFactory<String, T> kafkaTransactionListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factoryBuilder(consumerListenerFactory(transactionId, (Class<T>) TransactionDto.class), factory);
+        return factory;
+    }
+
+    @Bean
+    ConcurrentKafkaListenerContainerFactory<String, T> kafkaTransactionErrorListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factoryBuilder(consumerListenerFactoryForString(transactionErrorId, (Class<T>) String.class), factory);
+        return factory;
+    }
+
+    private ConsumerFactory<String, T> consumerListenerFactoryForString(String groupId, Class<T> valueType) {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, servers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, MessageDeserializer.class);
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "java.lang." + valueType.getSimpleName());
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, sessionTimeout);
+        props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, maxPartitionFetchBytes);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
+        props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollIntervalsMs);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, Boolean.FALSE);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, MessageDeserializer.class.getName());
+        props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, MessageDeserializer.class);
+
+        DefaultKafkaConsumerFactory factory = new DefaultKafkaConsumerFactory<String, T>(props);
+        factory.setKeyDeserializer(new StringDeserializer());
+
         return factory;
     }
 

@@ -1,10 +1,15 @@
-[{"amount":121,"client_id":43,"account_id":1},
+[{"amount":100,"client_id":43,"account_id":1},
 {"amount":854,"client_id":68,"account_id":2},
 {"amount":715,"client_id":79,"account_id":3},
 {"amount":964,"client_id":52,"account_id":4},
 {"amount":370,"client_id":32,"account_id":5},
-{"amount":809,"client_id":96,"account_id":14},
-{"amount":497,"client_id":80,"account_id":26},
-{"amount":952,"client_id":18,"account_id":36},
-{"amount":615,"client_id":22,"account_id":96},
-{"amount":428,"client_id":46,"account_id":83}]
+{"amount":0,"client_id":96,"account_id":14},
+{"amount":0,"client_id":80,"account_id":26},
+{"amount":0,"client_id":18,"account_id":36},
+{"amount":0,"client_id":22,"account_id":96},
+{"amount":0,"client_id":46,"account_id":83},
+{"amount":-500,"client_id":43,"account_id":1},
+  {"amount":-500,"client_id":43,"account_id":1},
+  {"amount": 400,"client_id":43,"account_id":1}
+
+]

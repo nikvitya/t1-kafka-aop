@@ -1,40 +1,20 @@
+
 <databaseChangeLog
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="init" author="ECHasov">
-        <sqlFile encoding="utf8" path="/db/changelog/2024/09/16-01-changelog-01.sql"/>
+    <changeSet id="add-client" author="nikiforovV">
+        <sqlFile encoding="utf8" path="db/changelog/2024/09/24-09-changelog-01.sql"/>
         <rollback/>
     </changeSet>
-
-    <changeSet id="update-client" author="ECHasov">
-        <sqlFile encoding="utf8" path="/db/changelog/2024/09/16-01-changelog-02.sql"/>
+    <changeSet id="add-account-and-transaction" author="nikiforovV">
+        <sqlFile encoding="utf8" path="db/changelog/2024/09/24-10-changelog-02.sql"/>
         <rollback/>
     </changeSet>
-
-    <changeSet id="accounts" author="NikiforovV">
-        <sqlFile encoding="utf8" path="/db/changelog/2024/09/16-01-changelog-03.sql"/>
+    <changeSet id="add-role-and-user" author="nikiforovV">
+        <sqlFile encoding="utf8" path="db/changelog/2024/09/24-10-changelog-03.sql"/>
         <rollback/>
-    </changeSet>
-
-        <changeSet id="1727272690521-1" author="e_cha (generated)">
-        <createSequence incrementBy="50" sequenceName="transaction_seq" startValue="1"/>
-    </changeSet>
-    <changeSet id="1727272690521-2" author="e_cha (generated)">
-        <createTable tableName="transaction">
-            <column name="id" type="BIGINT">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_transaction"/>
-            </column>
-            <column name="amount" type="DECIMAL(19, 2)"/>
-            <column name="client_id" type="BIGINT"/>
-            <column name="account_id" type="BIGINT"/>
-        </createTable>
-        <addForeignKeyConstraint baseTableName="transaction"
-                                 baseColumnNames="account_id"
-                                 constraintName="account_id_fk"
-                                 referencedTableName="account"
-                                 referencedColumnNames="id"/>
     </changeSet>
 </databaseChangeLog>
