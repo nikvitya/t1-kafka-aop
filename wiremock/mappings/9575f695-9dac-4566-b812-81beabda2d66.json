@@ -1,0 +1,52 @@
+{
+  "id" : "9575f695-9dac-4566-b812-81beabda2d66",
+  "name" : "---",
+  "request" : {
+    "url" : "/api/client/check",
+    "method" : "ANY"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\n\"blocked\": false\n}",
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "uuid" : "9575f695-9dac-4566-b812-81beabda2d66",
+  "persistent" : true,
+  "scenarioName" : "",
+  "requiredScenarioState" : "Started",
+  "metadata" : {
+    "proxyUrlPrefixToRemove" : "",
+    "proxyEnable" : false,
+    "proxyBaseUrl" : "http://",
+    "proxyResponseHeaders" : {
+      "Content-Type" : "application/json"
+    },
+    "responseHeaders" : {
+      "Content-Type" : "application/json"
+    },
+    "csvTableHeader" : "",
+    "csvMQTableHeader" : "",
+    "isCSV" : false,
+    "isMqCSV" : false,
+    "isAsyncCsv" : [ false ]
+  },
+  "insertionIndex" : 1,
+  "postServeActions" : [ {
+    "name" : "asyncAction",
+    "parameters" : {
+      "mqAsyncAction" : false,
+      "isAsyncAction" : false,
+      "httpResponse" : [ {
+        "asyncEnabled" : false,
+        "responseDefinition" : {
+          "headers" : {
+            "Content-Type" : [ "application/json" ]
+          }
+        }
+      } ],
+      "mqResponse" : { }
+    }
+  } ]
+}

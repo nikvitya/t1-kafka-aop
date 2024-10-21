@@ -32,4 +32,9 @@ public class Transaction extends AbstractPersistable<Long> {
     @Column(name = "type")
     private TransactionType type;
 
+    @Override
+    public void setId(Long id) {
+        super.setId(id);
+    }
+
 }

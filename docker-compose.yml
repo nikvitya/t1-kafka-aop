@@ -1,6 +1,12 @@
 version: '1.0'
 
 services:
+  wiremock-demo:
+    image: bscmsc/bsc-wire-mock:latest
+    ports:
+      - "8088:1398"
+    volumes:
+      - ./wiremock/mappings:/app/mappings
   postgres:
     image: postgres:11.13
     container_name: t1_java_demo

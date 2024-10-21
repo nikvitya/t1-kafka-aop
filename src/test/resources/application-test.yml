@@ -1,15 +1,6 @@
 spring:
   application:
     name: t1-java-demo
-#  datasource:
-#    jdbcUrl: jdbc:postgresql://localhost:6543/t1_demo
-#    username: postgres
-#    password: "0000"
-#    driverClassName: org.postgresql.Driver
-#  liquibase:
-#    enabled: true
-#    default-schema: public
-#    change-log: db/changelog/db.changelog-master.xml
   datasource:
     jdbcUrl: jdbc:h2:mem:t1_demo
     username: admin
@@ -24,6 +15,19 @@ spring:
     url: jdbc:h2:mem:t1_demo
     username: admin
     password: "0000"
+
+    #url: jdbc:postgresql://${DB_HOST:localhost:6543}/t1_demo
+    #user: postgres
+    #password: "0000"
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+
 security:
   token: tstrs4g434wyhser5htstrs4g434wyhser5htstrs4g434wyhser5htstrs4g434wyhser5htstrs4g434wyhser5h
   expiration: 86400000

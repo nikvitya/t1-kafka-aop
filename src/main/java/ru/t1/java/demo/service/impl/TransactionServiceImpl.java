@@ -1,7 +1,7 @@
 package ru.t1.java.demo.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,12 +15,14 @@ import ru.t1.java.demo.model.Account;
 import ru.t1.java.demo.model.AccountType;
 import ru.t1.java.demo.model.Client;
 import ru.t1.java.demo.model.Transaction;
+import ru.t1.java.demo.model.dto.CheckResponse;
 import ru.t1.java.demo.model.dto.TransactionDto;
 import ru.t1.java.demo.repository.AccountRepository;
 import ru.t1.java.demo.repository.ClientRepository;
 import ru.t1.java.demo.repository.TransactionRepository;
 import ru.t1.java.demo.service.AccountService;
 import ru.t1.java.demo.service.TransactionService;
+import ru.t1.java.demo.web.CheckWebClient;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +30,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 
 @RequiredArgsConstructor
@@ -40,6 +43,8 @@ public class TransactionServiceImpl implements TransactionService {
     private final AccountRepository accountRepository;
     private final KafkaTransactionProducer kafkaTransactionProducer;
     private final AccountService accountService;
+    private final CheckWebClient checkWebClient;
+
 
     @Metric
     @Override
@@ -60,8 +65,12 @@ public class TransactionServiceImpl implements TransactionService {
     @Metric
     @Override
     public void addTransaction(List<Transaction> transactions) {
-
         for (Transaction transaction : transactions) {
+            if (!isTransactionAllowed(transaction)) {
+                throw new ConflictException("Transaction is not allowed");
+
+            }
+
             Long clientId = transaction.getClientId();
             Long accountId = transaction.getAccountId();
 
@@ -99,6 +108,17 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
+    public Boolean isTransactionAllowed(Transaction transaction) {
+        Optional<CheckResponse> check = checkWebClient.checkTransaction(transaction.getId());
+        if (check.isPresent()) {
+            if (!check.get().getBlocked()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     @Override
     public void cancelTransaction(List<Long> transactionIds) {
@@ -117,7 +137,7 @@ public class TransactionServiceImpl implements TransactionService {
 
                 account.setIsBlocked(false);
                 Transaction returnedTransaction = new Transaction(transaction.getAmount(),
-                        transaction.getClientId(), transaction.getAccountId(),true,transaction.getType());
+                        transaction.getClientId(), transaction.getAccountId(), true, transaction.getType());
 
                 transactionForRetry.add(returnedTransaction);
             }
