@@ -70,7 +70,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     public Account findById(Long accountId) {
-        return accountRepository.findById(accountId).orElseThrow(() -> new NotFoundException(String.format("Аккаунт с id =% не найден", accountId)));
+        return accountRepository.findById(accountId).orElseThrow(() -> new NotFoundException(String.format("Аккаунт с id = %d не найден", accountId)));
     }
 
     @Override

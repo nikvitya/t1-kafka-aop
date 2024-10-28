@@ -1,0 +1,51 @@
+{
+  "id" : "f18627d9-69f9-443f-98ac-6b5dea5d92b4",
+  "name" : "transaction/add",
+  "request" : {
+    "url" : "/transaction/add",
+    "method" : "POST"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\n\"blocked\": false\n}",
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "uuid" : "f18627d9-69f9-443f-98ac-6b5dea5d92b4",
+  "persistent" : true,
+  "requiredScenarioState" : "Started",
+  "metadata" : {
+    "proxyBaseUrl" : "http://",
+    "proxyUrlPrefixToRemove" : "",
+    "proxyEnable" : false,
+    "proxyResponseHeaders" : {
+      "Content-Type" : "application/json"
+    },
+    "responseHeaders" : {
+      "Content-Type" : "application/json"
+    },
+    "csvTableHeader" : "",
+    "csvMQTableHeader" : "",
+    "isCSV" : false,
+    "isMqCSV" : false,
+    "isAsyncCsv" : [ false ]
+  },
+  "insertionIndex" : 5,
+  "postServeActions" : [ {
+    "name" : "asyncAction",
+    "parameters" : {
+      "mqAsyncAction" : false,
+      "isAsyncAction" : false,
+      "httpResponse" : [ {
+        "asyncEnabled" : false,
+        "responseDefinition" : {
+          "headers" : {
+            "Content-Type" : [ "application/json" ]
+          }
+        }
+      } ],
+      "mqResponse" : { }
+    }
+  } ]
+}
