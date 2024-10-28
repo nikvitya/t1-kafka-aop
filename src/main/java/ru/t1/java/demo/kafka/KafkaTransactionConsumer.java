@@ -43,4 +43,26 @@ public class KafkaTransactionConsumer {
 
         log.debug("Transaction consumer: записи обработаны");
     }
+
+    @KafkaListener(id = "${t1.kafka.consumer.transaction-error-id}",
+            topics = "${t1.kafka.topic.transaction_errors}",
+            containerFactory = "kafkaTransactionErrorListenerContainerFactory")
+    public void errorListener(@Payload List<String> messageList,
+                              Acknowledgment ack,
+                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                              @Header(KafkaHeaders.RECEIVED_KEY) String key) {
+        log.debug("Transaction consumer: Обработка новых сообщений");
+
+        try {
+            transactionService.cancelTransaction(messageList.stream().map(Long::parseLong).toList());
+        } finally {
+            ack.acknowledge();
+        }
+
+        log.debug("Transaction consumer: записи обработаны");
+    }
+
+
+
+
 }

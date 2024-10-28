@@ -19,9 +19,22 @@ public class KafkaTransactionProducer {
     @Value("${t1.kafka.topic.transaction_id_registered}")
     private String transactionTopic;
 
+    @Value("${t1.kafka.topic.transaction_errors}")
+    private String transactionErrorTopic;
+
     public void send(Long id) {
         try {
             templateLong.setDefaultTopic(transactionTopic);
+            templateLong.sendDefault(UUID.randomUUID().toString(), id).get();
+            templateLong.flush();
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+        }
+    }
+
+    public void sendTransaction(Long id) {
+        try {
+            templateLong.setDefaultTopic(transactionErrorTopic);
             templateLong.sendDefault(UUID.randomUUID().toString(), id).get();
             templateLong.flush();
         } catch (Exception ex) {
