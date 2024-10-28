@@ -33,17 +33,14 @@ public class CheckWebClientTest {
 //            .clientConnector(connector).build());
 
     @Test
-    void check() {
-
+    void checkWebClient_forClient() {
         assertThat(checkWebClient.check(1L)).get().isEqualTo(CheckResponse.builder()
                 .blocked(false)
                 .build());
-
     }
 
     @Test
-    void check2() {
-
+    void checkWebClient_forTransaction() {
         assertThat(checkWebClient.checkTransaction(1L)).get().isEqualTo(CheckResponse.builder()
                 .blocked(false)
                 .build());

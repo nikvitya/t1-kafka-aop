@@ -12,7 +12,6 @@ import ru.t1.java.demo.kafka.KafkaAccountProducer;
 import ru.t1.java.demo.model.Account;
 import ru.t1.java.demo.model.AccountType;
 import ru.t1.java.demo.model.dto.AccountDto;
-import ru.t1.java.demo.model.dto.ClientDto;
 import ru.t1.java.demo.repository.AccountRepository;
 
 import java.math.BigDecimal;
@@ -48,7 +47,7 @@ class AccountServiceImplTest {
         accountService.addAccount(accounts);
 
         verify(kafkaAccountProducer, times(2)).send(anyLong());
-        verify(accountRepository,times(1)).saveAll(accounts);
+        verify(accountRepository, times(1)).saveAll(accounts);
     }
 
     @Test

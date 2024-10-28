@@ -7,13 +7,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import ru.t1.java.demo.exception.NotFoundException;
 import ru.t1.java.demo.model.User;
 import ru.t1.java.demo.repository.UserRepository;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,8 +49,6 @@ class UserDetailsServiceImplTest {
 
         assertEquals("User Not Found with username: notFoundUser", exception.getMessage());
     }
-
-
 
 
 }

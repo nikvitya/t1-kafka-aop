@@ -39,7 +39,7 @@ public class ClientServiceImplTest {
         List<ClientDto> actualClients = clientService.parseJson();
 
         assertEquals(expectedClients.get(0).getFirstName(), actualClients.get(0).getFirstName());
-        verify(clientService,times(1)).parseJson();
+        verify(clientService, times(1)).parseJson();
     }
 
     @Test
