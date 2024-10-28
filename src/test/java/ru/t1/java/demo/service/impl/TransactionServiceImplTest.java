@@ -16,7 +16,6 @@ import ru.t1.java.demo.model.dto.CheckResponse;
 import ru.t1.java.demo.repository.AccountRepository;
 import ru.t1.java.demo.repository.ClientRepository;
 import ru.t1.java.demo.repository.TransactionRepository;
-import ru.t1.java.demo.service.AccountService;
 import ru.t1.java.demo.web.CheckWebClient;
 
 import java.math.BigDecimal;
@@ -46,8 +45,6 @@ public class TransactionServiceImplTest {
     private ClientRepository clientRepository;
     @Mock
     private AccountRepository accountRepository;
-    @Mock
-    private AccountService accountService;
 
 
     @Test
